@@ -7,9 +7,21 @@ from database import SessionLocal
 from models.user import User
 from schemas.user import LoginRequest, TokenResponse
 
-SECRET_KEY = "your_secret_key"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+import os
+from dotenv import load_dotenv
+
+load_dotenv()  # 會自動找同層的 .env 檔並讀取
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+
+## 抓環境變數，沒有值就給第二個參數的預設值
+ALGORITHM = os.getenv("ALGORITHM", "HS256")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30))
+
+# SECRET_KEY = "your_secret_key"
+# ALGORITHM = "HS256"
+# ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 router = APIRouter()
 
