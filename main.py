@@ -5,6 +5,16 @@ from models import user
 from routers import login
 app = FastAPI()
 
+
+
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+print("SECRET_KEY loaded:", os.getenv("SECRET_KEY"))
+
+
 @app.get("/")
 def read_root():
     return {"message": "Hello, FastAPI!"}
@@ -14,6 +24,8 @@ def read_item(item_id: int, q: str = None):
     return {"item_id": item_id, "q": q}
 
 ###############
+
+print("SECRET_KEY loaded:", os.getenv("SECRET_KEY"))
 
 
 # 建立資料表

@@ -1,3 +1,14 @@
+from dotenv import load_dotenv
+from pathlib import Path
+import os
+
+
+
+# 找到專案根目錄的 .env 路徑
+env_path = Path(__file__).resolve().parent.parent / ".env"
+load_dotenv(dotenv_path=env_path)
+# load_dotenv()
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 import jwt
@@ -8,12 +19,11 @@ from models.user import User
 from schemas.user import LoginRequest, TokenResponse
 
 
-import os
-from dotenv import load_dotenv
 
-load_dotenv()  # 會自動找同層的 .env 檔並讀取
+
 
 SECRET_KEY = os.getenv("SECRET_KEY")
+
 
 ## 抓環境變數，沒有值就給第二個參數的預設值
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
@@ -36,6 +46,12 @@ def get_db():
 @router.post("/login", response_model=TokenResponse)
 def login(login_req: LoginRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.username == login_req.username).first()
+    print(f"SECRET_KEY: {SECRET_KEY} (type: {type(SECRET_KEY)})")
+    print(f"user: {user}")
+    if user:
+        print(f"user.username: {user.username} (type: {type(user.username)})")
+    else:
+        print("user is None")
     if not user or user.password != login_req.password:
         raise HTTPException(status_code=401, detail="Invalid username or password")
 
