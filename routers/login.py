@@ -20,14 +20,16 @@ from schemas.user import LoginRequest, TokenResponse
 
 
 
+from config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 
+from database import get_db
 
-SECRET_KEY = os.getenv("SECRET_KEY")
+# SECRET_KEY = os.getenv("SECRET_KEY")
 
 
 ## 抓環境變數，沒有值就給第二個參數的預設值
-ALGORITHM = os.getenv("ALGORITHM", "HS256")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30))
+# ALGORITHM = os.getenv("ALGORITHM", "HS256")
+# ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30))
 
 # SECRET_KEY = "your_secret_key"
 # ALGORITHM = "HS256"
@@ -36,12 +38,12 @@ ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30))
 router = APIRouter()
 
 # Dependency：取得資料庫 session
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+# def get_db():
+#     db = SessionLocal()
+#     try:
+#         yield db
+#     finally:
+#         db.close()
 
 @router.post("/login", response_model=TokenResponse)
 def login(login_req: LoginRequest, db: Session = Depends(get_db)):
@@ -53,7 +55,7 @@ def login(login_req: LoginRequest, db: Session = Depends(get_db)):
     else:
         print("user is None")
     if not user or user.password != login_req.password:
-        raise HTTPException(status_code=401, detail="Invalid username or password")
+        raise HTTPException(status_code=401, detail="Invalid username or password.")
 
     expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     token = jwt.encode({"sub": user.username, "exp": expire}, SECRET_KEY, algorithm=ALGORITHM)

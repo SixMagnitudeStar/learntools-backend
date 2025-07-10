@@ -3,8 +3,8 @@ from fastapi import FastAPI
 from database import engine, Base, SessionLocal
 from models import user
 from routers import login
+from routers import register  # 引入 register router
 app = FastAPI()
-
 
 
 import os
@@ -43,3 +43,4 @@ init_user()
 
 # 掛載路由
 app.include_router(login.router)
+app.include_router(register.router)
