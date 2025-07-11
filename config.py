@@ -1,5 +1,12 @@
-# config.py
+from dotenv import load_dotenv
+from pathlib import Path
 import os
+
+
+# 找到專案根目錄的 .env 路徑
+env_path = Path(__file__).resolve().parent.parent / ".env"
+load_dotenv(dotenv_path=env_path)
+# load_dotenv()
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")

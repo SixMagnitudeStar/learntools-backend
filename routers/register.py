@@ -19,8 +19,24 @@ from schemas import RegisterRequest
 # 建立一個 APIRouter 實例，讓這個檔案可以獨立作為路由模組
 router = APIRouter()
 
-# 設定加密上下文，這裡指定使用 bcrypt 演算法
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# 匯入密碼雜湊function
+from security import hash_password
+
+
+
+hashed_pw = hash_password(req.password)
+# 註冊feature包含：
+# 宣告路由字串
+# 定義資料驗證schema
+# 定義連接資料庫
+# 確認使用者是否存在，存在的話raise HTTPException拋出錯誤碼和錯誤訊息告知使用者已存在
+# 定義加密物件 (不用放在路由function裡，可放在外層避免重複呼叫)
+# 取得加密過後的密碼
+# 建立一個使用者資料物件 (model裡面的物件)，傳入使用者帳號與密碼 (其他的可自行添加)
+# 將new_user物件加入資料庫session
+# db.commit將資料庫session的變更提交至資料庫
+# refresh資料庫session，讓資料為最新狀態 (包含DB自動生成的欄位，例如id)
+
 
 # 定義一個 POST 請求的 API 路由 /register
 @router.post("/register")
@@ -37,7 +53,7 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Username already exists.")
 
     # 使用 bcrypt 雜湊密碼
-    hashed_pw = pwd_context.hash(req.password)
+    hashed_pw = hash_password(req.password)
 
     # 建立一個新的使用者資料物件
     new_user = User(username=req.username, password=hashed_pw)
