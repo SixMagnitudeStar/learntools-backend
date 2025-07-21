@@ -1,9 +1,19 @@
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+from sqlalchemy.orm import Session
+from database import get_db
+
+# from database import get_db
+
 from datetime import datetime, timedelta
 import jwt
 from config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 
 from passlib.context import CryptContext
 
+from fastapi.security import OAuth2PasswordBearer
+# oauth2_scheme 是一個 FastAPI 的「依賴元件」，它的作用是：
+# 從請求中「自動提取」HTTP Header 中的 Bearer Token。
 
 ## 產生token
 # jwt token組成包含：1. 使用者名稱與到期資訊的資料  2. 密鑰 3. 演算法
@@ -25,3 +35,29 @@ def hash_password(password: str) -> str:
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
+
+
+
+##
+
+#  # ✅ 建立 OAuth2PasswordBearer 實例（這一行是關鍵）
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
+
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            raise credentials_exception
+    except jwt.PyJWTError:
+        raise credentials_exception
+
+    user = db.query(User).filter(User.username == username).first()
+    if user is None:
+        raise credentials_exception
+    return user

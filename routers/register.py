@@ -11,10 +11,10 @@ from passlib.context import CryptContext
 from database import get_db
 
 # 匯入使用者資料表模型
-from models import User
+from models.user import User
 
 # 匯入註冊請求的資料格式定義
-from schemas import RegisterRequest
+from schemas.user import RegisterRequest
 
 # 建立一個 APIRouter 實例，讓這個檔案可以獨立作為路由模組
 router = APIRouter()
@@ -22,9 +22,6 @@ router = APIRouter()
 # 匯入密碼雜湊function
 from security import hash_password
 
-
-
-hashed_pw = hash_password(req.password)
 # 註冊feature包含：
 # 宣告路由字串
 # 定義資料驗證schema
