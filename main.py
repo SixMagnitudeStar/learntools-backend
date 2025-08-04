@@ -2,10 +2,11 @@
 from fastapi import FastAPI
 from database import engine, Base, SessionLocal
 from models.user import User
-from routers import login , register , logout , profile
+from routers import login , register , logout , profile, chains
 from security import hash_password
+from config import setup_cors
 app = FastAPI()
-
+setup_cors(app)
 
 import os
 from dotenv import load_dotenv
@@ -65,3 +66,4 @@ app.include_router(login.router)
 app.include_router(register.router)
 app.include_router(logout.router)
 app.include_router(profile.router)
+app.include_router(chains.router)

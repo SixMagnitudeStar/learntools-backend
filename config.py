@@ -13,3 +13,21 @@ load_dotenv(dotenv_path=env_path)
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30))
+
+
+# config.py
+from fastapi.middleware.cors import CORSMiddleware
+
+def setup_cors(app):
+    origins = [
+        "http://localhost",
+        "http://localhost:8080",
+        "http://127.0.0.1:8080",
+    ]
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )

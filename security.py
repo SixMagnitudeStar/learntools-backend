@@ -43,6 +43,8 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 #  # ✅ 建立 OAuth2PasswordBearer 實例（這一行是關鍵）
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 
+
+## token驗證
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
