@@ -11,7 +11,7 @@ from passlib.context import CryptContext
 from database import get_db
 
 # 匯入使用者資料表模型
-from models.user import User
+from models.models import User
 
 # 匯入註冊請求的資料格式定義
 from schemas.user import RegisterRequest

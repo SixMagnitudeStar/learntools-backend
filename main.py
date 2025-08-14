@@ -1,7 +1,7 @@
 
 from fastapi import FastAPI
 from database import engine, Base, SessionLocal
-from models.user import User
+from models.models import User
 from routers import login , register , logout , profile, chains
 from security import hash_password
 from config import setup_cors
