@@ -24,3 +24,11 @@ class Article(Base):
     tags_css = Column(JSON, nullable=True)
 
     user = relationship("User", back_populates="articles")
+
+
+class Word(Base):
+    __tablename__ = 'words'
+
+    id = Column(Integer, primary_key=True, index=True)
+    account = Column(String, index=True)
+    word = Column(String)

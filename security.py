@@ -41,11 +41,21 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 ##
 
 #  # ✅ 建立 OAuth2PasswordBearer 實例（這一行是關鍵）
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
+oauth2_scheme = OAuth2PasswordBearer(
+    tokenUrl="/login",
+    auto_error=False  # 這會讓它在沒有 token 時返回 None 而不是拋出異常
+)
+
+# oauth2_scheme 主要有兩個核心功能：
+
+# 實際的請求驗證功能
+
+# 自動生成 API 文檔（Swagger UI）
 
 
-## token驗證
+## token驗證       ## Depends是依賴，他會自動呼叫那些functino並回傳值給定義好的參數
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
