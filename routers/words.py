@@ -3,7 +3,7 @@ from typing import List, Optional
 import jwt  # pip install pyjwt
 
 
-from schemas.word import AddWordRequest
+from schemas.schema import AddWordRequest
 
 from security import get_current_user
 from database import get_db

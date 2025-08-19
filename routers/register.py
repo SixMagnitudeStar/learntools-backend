@@ -14,7 +14,7 @@ from database import get_db
 from models.models import User
 
 # 匯入註冊請求的資料格式定義
-from schemas.user import RegisterRequest
+from schemas.schema import RegisterRequest
 
 # 建立一個 APIRouter 實例，讓這個檔案可以獨立作為路由模組
 router = APIRouter()

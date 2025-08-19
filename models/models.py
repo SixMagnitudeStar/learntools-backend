@@ -20,6 +20,7 @@ class Article(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey('users.id'))
+    tilte = Column(String)
     content = Column(String)
     tags_css = Column(JSON, nullable=True)
 

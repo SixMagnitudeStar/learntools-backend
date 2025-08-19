@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 from database import SessionLocal
 from models.models import User
-from schemas.user import LoginRequest, TokenResponse
+from schemas.schema import LoginRequest, TokenResponse
 
 from database import get_db
 from security import verify_password, create_access_token
