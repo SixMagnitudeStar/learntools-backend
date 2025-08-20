@@ -11,6 +11,7 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, index=True, nullable=False)
     password = Column(String, nullable=False)
+    nickname = Column(String)
 
     articles = relationship("Article", back_populates="user")
 
@@ -20,7 +21,7 @@ class Article(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey('users.id'))
-    tilte = Column(String)
+    title = Column(String)
     content = Column(String)
     tags_css = Column(JSON, nullable=True)
 

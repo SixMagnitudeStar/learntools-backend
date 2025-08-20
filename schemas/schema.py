@@ -1,9 +1,11 @@
 from pydantic import BaseModel
+from typing import List, Dict
 
 
 class RegisterRequest(BaseModel):
     username: str
     password: str
+    nickname: str
 
 
 class LoginRequest(BaseModel):
@@ -23,4 +25,4 @@ class AddWordRequest(BaseModel):
 class AddArticleRequest(BaseModel):
     title: str
     content: str
-    tags_css: List[Dict[str, str]]
+    tags_css: List[Dict[str, str]]  = []  # 預設空列表

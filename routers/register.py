@@ -53,7 +53,7 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
     hashed_pw = hash_password(req.password)
 
     # 建立一個新的使用者資料物件
-    new_user = User(username=req.username, password=hashed_pw)
+    new_user = User(username=req.username, password=hashed_pw, nickname=req.nickname)
 
     # 將使用者加入資料庫 session 中
     db.add(new_user)

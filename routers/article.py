@@ -7,10 +7,11 @@ from schemas.schema import AddArticleRequest
 
 from security import get_current_user
 from database import get_db
-from models.models import Word, User
+from models.models import Article, User
 
 # 匯入 SQLAlchemy 的 Session 類型，用於與資料庫互動
 from sqlalchemy.orm import Session
+import json
 
 # 建立一個 APIRouter 實例，讓這個檔案可以獨立作為路由模組
 router = APIRouter()
@@ -18,13 +19,28 @@ router = APIRouter()
 
 @router.get('/articles')
 def get_articles(current_user:User = Depends(get_current_user), db: Session = Depends(get_db)):
-    aricles = db.query(Article).filter(Article.user_id == current_user.id).all()
+    articles = db.query(Article).filter(Article.user_id == current_user.id).all()
 
-    return {'message': '文章查詢成功', 'account': current_user.username, 'articles': articles}
+    # 將 Article 物件 list 轉成 dict list
+    articles_list = [article_to_dict(a) for a in articles]
+
+    return {'message': '文章查詢成功', 'account': current_user.username, 'articles': articles_list}
+
+
+def article_to_dict(article: Article):
+    return {
+        "id": article.id,
+        "title": article.title,
+        "content": article.content,
+        # "tags_css": json.loads(article.tags_css) if article.tags_css else []
+        "tags_css": article.tags_css or []
+    }
+
+
 
 
 @router.post('/article')
-def add_article(current_user:User = Depends(get_current_user), db: Session = Depends(get_db)):
+def add_article(req: AddArticleRequest,current_user:User = Depends(get_current_user), db: Session = Depends(get_db)):
     if not current_user:
         return {"message": "請先登入"}
 

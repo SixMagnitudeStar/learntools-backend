@@ -2,7 +2,7 @@
 from fastapi import FastAPI
 from database import engine, Base, SessionLocal
 from models.models import User
-from routers import login , register , logout , profile, chains, words
+from routers import login , register , logout , profile, chains, words, article
 from security import hash_password
 from config import setup_cors
 app = FastAPI()
@@ -44,7 +44,7 @@ def init_user():
     db = SessionLocal()
     admin = db.query(User).filter_by(username="admin").first()
     if not admin:
-        db.add(user.User(username="admin", password=hash_password("password")))
+        db.add(User(username="admin", password=hash_password("password")))
     else:
         # 強制更新 admin 密碼為哈希
         admin.password = hash_password("password")
@@ -68,3 +68,4 @@ app.include_router(logout.router)
 app.include_router(profile.router)
 app.include_router(chains.router)
 app.include_router(words.router)
+app.include_router(article.router)
