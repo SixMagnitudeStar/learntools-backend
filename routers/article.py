@@ -44,10 +44,43 @@ def add_article(req: AddArticleRequest,current_user:User = Depends(get_current_u
     if not current_user:
         return {"message": "請先登入"}
 
-    new_article = Article(user_id = current_user.id, content = req.content, tags_css = req.tags_css)
+    new_article = Article(user_id = current_user.id,title=req.title, content = req.content, tags_css = req.tags_css)
     db.add(new_article)
     db.commit()
     db.refresh(new_article) ## 沒有要回傳值，其實可以不用refresh
 
     return {'message': '文章新增成功!', 'account': current_user.username, 'article':{'title': req.title, 'content': req.content}}
 
+
+
+@router.put('/article/{article_id}')
+def update_article(
+    article_id: int,
+    req: AddArticleRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if not current_user:
+        raise HTTPException(status_code=401, detail="請先登入")
+
+    # 找文章
+    article = db.query(Article).filter(
+        Article.id == article_id,
+        Article.user_id == current_user.id   # 確保只能改自己的文章
+    ).first()
+
+    if not article:
+        raise HTTPException(status_code=404, detail="文章不存在")
+
+    # 更新內容
+    article.title = req.title
+    article.content = req.content
+    article.tags_css = req.tags_css
+
+    db.commit()
+    db.refresh(article)
+
+    return {
+        "message": "文章修改成功!",
+        "article": article_to_dict(article)
+    }
