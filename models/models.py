@@ -26,11 +26,34 @@ class Article(Base):
     tags_css = Column(JSON, nullable=True)
 
     user = relationship("User", back_populates="articles")
+    marked_words = relationship("MarkedWords")
+
+class MarkedWord(Base):
+    __tablename__ = 'marked_words'
+    id = Column(Integer, primary_key=True)   # 流水號
+  
+    user_id = Column(Integer, ForeignKey('users.id'))
+
+    # 這個 mark的單字屬於哪篇文章
+    article_id = Column(Integer, ForeignKey('articles.id')) 
+    word = Column(String)                    # mark 的單字
+
 
 
 class Word(Base):
     __tablename__ = 'words'
 
     id = Column(Integer, primary_key=True, index=True)
-    account = Column(String, index=True)
+
+    user_id = Column(Integer ForeignKey('users.id'))
     word = Column(String)
+
+
+class Note(Base):
+    __tablename__ = 'notes'
+
+    id = Column(Integer, primary_key = True, index=True)
+    user_id = Column(Integer, ForeignKey('users.id'))
+    article_id = Column(Integer, ForeignKey('articles.id'))
+
+    text = Column(String)
