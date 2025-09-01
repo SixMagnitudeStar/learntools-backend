@@ -3,11 +3,11 @@ from typing import List, Optional
 import jwt  # pip install pyjwt
 
 
-from schemas.schema import AddArticleRequest
+from schemas.schema import AddArticleRequest, AddMarkedWordRequest
 
 from security import get_current_user
 from database import get_db
-from models.models import Article, User
+from models.models import Article, User, MarkedWord
 
 # 匯入 SQLAlchemy 的 Session 類型，用於與資料庫互動
 from sqlalchemy.orm import Session
@@ -83,4 +83,49 @@ def update_article(
     return {
         "message": "文章修改成功!",
         "article": article_to_dict(article)
+    }
+
+
+    @router.post('/markedword')
+    def upldate_markedword(
+        req: AddMarkedWord,
+        current_user: User = Depends(get_current_user),
+        db: Session = Depends(get_db)
+    ):
+    if not current_user:
+        raise HTTPException(status_code=401, detail="請先登入")
+    
+    new_item = MarkedWord(user_id=current_user.id, article_id=req.article_id, word=req.word)
+    db.add(new_item)
+    db.commit()
+
+    return {'message':'標記單字新增成功!','account':current_user.username, 'word':req.word}
+
+
+
+@router.delete('/markedword/{id}')
+def delete_markedword(
+    id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if not current_user:
+        raise HTTPException(status_code=401, detail="請先登入")
+
+    # 找出要刪除的紀錄
+    item = db.query(MarkedWord).filter_by(
+        id=id,
+        user_id=current_user.id
+    ).first()
+
+    if not item:
+        raise HTTPException(status_code=404, detail="找不到對應的標記單字")
+
+    db.delete(item)
+    db.commit()
+
+    return {
+        "message": "標記單字刪除成功!",
+        "account": current_user.username,
+        "word": item.word
     }

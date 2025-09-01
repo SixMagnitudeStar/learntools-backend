@@ -25,4 +25,10 @@ class AddWordRequest(BaseModel):
 class AddArticleRequest(BaseModel):
     title: str
     content: str
+    note: str
     tags_css: List[Dict[str, str]]  = []  # 預設空列表
+
+
+class AddMarkedWordRequest(BaseModel):
+    article_id: str
+    word: str

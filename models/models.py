@@ -22,6 +22,8 @@ class Article(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey('users.id'))
     title = Column(String)
+    note = Column(String)
+
     content = Column(String)
     tags_css = Column(JSON, nullable=True)
 
@@ -39,7 +41,6 @@ class MarkedWord(Base):
     word = Column(String)                    # mark 的單字
 
 
-
 class Word(Base):
     __tablename__ = 'words'
 
@@ -49,11 +50,11 @@ class Word(Base):
     word = Column(String)
 
 
-class Note(Base):
-    __tablename__ = 'notes'
+# class Note(Base):
+#     __tablename__ = 'notes'
 
-    id = Column(Integer, primary_key = True, index=True)
-    user_id = Column(Integer, ForeignKey('users.id'))
-    article_id = Column(Integer, ForeignKey('articles.id'))
+#     id = Column(Integer, primary_key = True, index=True)
+#     user_id = Column(Integer, ForeignKey('users.id'))
+#     article_id = Column(Integer, ForeignKey('articles.id'))
 
-    text = Column(String)
+#     text = Column(String)
