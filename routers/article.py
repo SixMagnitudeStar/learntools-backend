@@ -17,6 +17,19 @@ import json
 router = APIRouter()
 
 
+## 測試用，之後要拿掉
+@router.get("/testarticle")
+def findarticle(db: Session = Depends(get_db)):
+    articles = db.query(Article).all()
+    
+    # if articles:
+    #     return {'文章': articles}
+    # else:
+    #     return {'回答': '找不到'}
+    return {'文章': articles}
+
+
+
 @router.get('/articles')
 def get_articles(current_user:User = Depends(get_current_user), db: Session = Depends(get_db)):
     articles = db.query(Article).filter(Article.user_id == current_user.id).all()
@@ -24,7 +37,8 @@ def get_articles(current_user:User = Depends(get_current_user), db: Session = De
     # 將 Article 物件 list 轉成 dict list
     articles_list = [article_to_dict(a) for a in articles]
 
-    return {'message': '文章查詢成功', 'account': current_user.username, 'articles': articles_list}
+    return {'message': '文章查詢成功', 'account': current_user.username, 'articles': articles}
+    # return {'message': '文章查詢成功', 'account': current_user.username, 'articles': articles_list}
 
 
 def article_to_dict(article: Article):
@@ -44,7 +58,7 @@ def add_article(req: AddArticleRequest,current_user:User = Depends(get_current_u
     if not current_user:
         return {"message": "請先登入"}
 
-    new_article = Article(user_id = current_user.id,title=req.title, content = req.content, tags_css = req.tags_css)
+    new_article = Article(user_id = current_user.id,title=req.title, content = req.content, tags_css = req.tags_css, note=req.note)
     db.add(new_article)
     db.commit()
     db.refresh(new_article) ## 沒有要回傳值，其實可以不用refresh
@@ -76,6 +90,7 @@ def update_article(
     article.title = req.title
     article.content = req.content
     article.tags_css = req.tags_css
+    article.note = req.note
 
     db.commit()
     db.refresh(article)
@@ -86,12 +101,12 @@ def update_article(
     }
 
 
-    @router.post('/markedword')
-    def upldate_markedword(
-        req: AddMarkedWord,
-        current_user: User = Depends(get_current_user),
-        db: Session = Depends(get_db)
-    ):
+@router.post('/markedword')
+def upldate_markedword(
+    req: AddMarkedWordRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     if not current_user:
         raise HTTPException(status_code=401, detail="請先登入")
     

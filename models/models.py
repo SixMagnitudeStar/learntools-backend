@@ -28,7 +28,7 @@ class Article(Base):
     tags_css = Column(JSON, nullable=True)
 
     user = relationship("User", back_populates="articles")
-    marked_words = relationship("MarkedWords")
+    marked_words = relationship("MarkedWord")
 
 class MarkedWord(Base):
     __tablename__ = 'marked_words'
@@ -46,9 +46,18 @@ class Word(Base):
 
     id = Column(Integer, primary_key=True, index=True)
 
-    user_id = Column(Integer ForeignKey('users.id'))
+    user_id = Column(Integer, ForeignKey('users.id'))
     word = Column(String)
 
+
+class testmodel(Base):
+    __tablename__ = 'testmodel'
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    m = Column(String)
+    a = Column(String)
+    c = Column(String)
 
 # class Note(Base):
 #     __tablename__ = 'notes'

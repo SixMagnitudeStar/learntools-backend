@@ -46,6 +46,12 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
     return {"access_token": access_token, "token_type": "bearer"}
 
 
+@router.get("/users")
+def look(db: Session = Depends(get_db)):
+    users = db.query(User).all()
+
+    return {'使用者帳號': users}
+
 # from fastapi.security import OAuth2PasswordRequestForm
 
 # @router.post("/login")

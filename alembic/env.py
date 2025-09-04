@@ -24,6 +24,9 @@ from database import Base, DATABASE_URL  # 引入你專案的 Base
 # 1️⃣ 告訴 Alembic 你的資料庫 URL
 config.set_main_option("sqlalchemy.url", DATABASE_URL)
 
+
+from models.models import User,Article,MarkedWord, Word, testmodel
+
 # 2️⃣ 告訴 Alembic 你的 model metadata
 target_metadata = Base.metadata
 
