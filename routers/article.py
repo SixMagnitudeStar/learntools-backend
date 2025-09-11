@@ -13,6 +13,9 @@ from models.models import Article, User, MarkedWord
 from sqlalchemy.orm import Session
 import json
 
+# 引入排序資料desc
+from sqlalchemy import desc
+
 # 建立一個 APIRouter 實例，讓這個檔案可以獨立作為路由模組
 router = APIRouter()
 
@@ -20,7 +23,7 @@ router = APIRouter()
 ## 測試用，之後要拿掉
 @router.get("/testarticle")
 def findarticle(db: Session = Depends(get_db)):
-    articles = db.query(Article).all()
+    articles = db.query(Article).order_by(desc(Article.id)).all()
     
     # if articles:
     #     return {'文章': articles}
@@ -32,13 +35,13 @@ def findarticle(db: Session = Depends(get_db)):
 
 @router.get('/articles')
 def get_articles(current_user:User = Depends(get_current_user), db: Session = Depends(get_db)):
-    articles = db.query(Article).filter(Article.user_id == current_user.id).all()
+    articles = db.query(Article).filter(Article.user_id == current_user.id).order_by(desc(Article.id)).all()
 
     # 將 Article 物件 list 轉成 dict list
     articles_list = [article_to_dict(a) for a in articles]
 
     return {'message': '文章查詢成功', 'account': current_user.username, 'articles': articles}
-    # return {'message': '文章查詢成功', 'account': current_user.username, 'articles': articles_list}
+
 
 
 def article_to_dict(article: Article):
@@ -99,6 +102,21 @@ def update_article(
         "message": "文章修改成功!",
         "article": article_to_dict(article)
     }
+
+
+@router.get('/markedwords/{article_id}')
+def get_markwords(
+    article_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+
+    markedwords = db.query(
+        MarkedWord).filter(MarkedWord.user_id == current_user.id, 
+        MarkedWord.article_id == article_id
+        ).all()
+
+    return {'message': '標記單字查詢成功!', 'words': markedwords}    
 
 
 @router.post('/markedword')

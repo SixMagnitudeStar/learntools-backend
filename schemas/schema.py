@@ -30,5 +30,5 @@ class AddArticleRequest(BaseModel):
 
 
 class AddMarkedWordRequest(BaseModel):
-    article_id: str
+    article_id: int
     word: str
