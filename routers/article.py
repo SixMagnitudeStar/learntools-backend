@@ -16,6 +16,8 @@ import json
 # 引入排序資料desc
 from sqlalchemy import desc
 
+from fastapi import Query
+
 # 建立一個 APIRouter 實例，讓這個檔案可以獨立作為路由模組
 router = APIRouter()
 
@@ -136,29 +138,65 @@ def upldate_markedword(
 
 
 
-@router.delete('/markedword/{id}')
+
+## 只刪除查詢到的第一筆
+@router.delete('/markedword')
 def delete_markedword(
-    id: int,
+    article_id: Optional[int] = Query(None),
+    word: Optional[str] = Query(None),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     if not current_user:
         raise HTTPException(status_code=401, detail="請先登入")
 
-    # 找出要刪除的紀錄
-    item = db.query(MarkedWord).filter_by(
-        id=id,
-        user_id=current_user.id
-    ).first()
+    if not any([article_id, word]):
+        raise HTTPException(status_code=400, detail="請提供至少一個刪除條件")
+
+    query = db.query(MarkedWord).filter(MarkedWord.user_id == current_user.id)
+
+    if article_id is not None:
+        query = query.filter(MarkedWord.article_id == article_id)
+    if word is not None:
+        query = query.filter(MarkedWord.word == word)
+
+    item = query.first()  # 只取第一筆
 
     if not item:
-        raise HTTPException(status_code=404, detail="找不到對應的標記單字")
+        raise HTTPException(status_code=404, detail="找不到符合條件的標記單字")
 
     db.delete(item)
     db.commit()
 
     return {
-        "message": "標記單字刪除成功!",
+        "message": "成功刪除標記單字!",
         "account": current_user.username,
-        "word": item.word
+        "deleted_word": item.word
     }
+
+# @router.delete('/markedword/{id}')
+# def delete_markedword(
+#     id: int,
+#     current_user: User = Depends(get_current_user),
+#     db: Session = Depends(get_db)
+# ):
+#     if not current_user:
+#         raise HTTPException(status_code=401, detail="請先登入")
+
+#     # 找出要刪除的紀錄
+#     item = db.query(MarkedWord).filter_by(
+#         id=id,
+#         user_id=current_user.id
+#     ).first()
+
+#     if not item:
+#         raise HTTPException(status_code=404, detail="找不到對應的標記單字")
+
+#     db.delete(item)
+#     db.commit()
+
+#     return {
+#         "message": "標記單字刪除成功!",
+#         "account": current_user.username,
+#         "word": item.word
+#     }
