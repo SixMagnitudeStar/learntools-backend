@@ -105,6 +105,34 @@ def update_article(
         "article": article_to_dict(article)
     }
 
+@router.delete('/article/{article_id}')
+def delete_article(
+    article_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if not current_user:
+        raise HTTPException(status_code=401, detail="請先登入")
+
+    # 找文章
+    article = db.query(Article).filter(
+        Article.id == article_id,
+        Article.user_id == current_user.id   # 確保只能改自己的文章
+    ).first()
+
+    if not article:
+        raise HTTPException(status_code=404, detail="文章不存在")
+    
+    db.delete(article)
+    db.commit()
+
+    return {
+        "message": "文章刪除成功!",
+        "account": current_user.username,
+        "deleted_article": article
+    }
+
+
 
 @router.get('/markedwords/{article_id}')
 def get_markwords(
