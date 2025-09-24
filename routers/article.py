@@ -134,6 +134,9 @@ def delete_article(
 
 
 
+
+
+
 @router.get('/markedwords/{article_id}')
 def get_markwords(
     article_id: int,

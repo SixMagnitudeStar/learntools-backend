@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, JSON
+from sqlalchemy import Column, Integer, String, Boolean ,ForeignKey, JSON
 from sqlalchemy.orm import relationship, declarative_base
+from sqlalchemy.sql import expression
 from pydantic import BaseModel
 from typing import List, Optional
 
@@ -29,6 +30,43 @@ class Article(Base):
 
     user = relationship("User", back_populates="articles")
     marked_words = relationship("MarkedWord")
+
+
+
+
+class ArticleBlock(Base):
+    __tablename__ = 'article_block'
+
+    id = Column(Integer, primary_key=True, index = True)
+    user_id = Column(Integer, ForeignKey('users.id'))
+    article_id = Column(Integer, ForeignKey('articles.id')) 
+
+    text = Column(String)
+    text_type = Column(String)
+
+    marked = Column(Boolean,  default=False,  server_default=expression.false(), nullable=False)
+
+        # self-reference
+    previous_id = Column(Integer, ForeignKey("article_block.id"), nullable=True)
+    next_id = Column(Integer, ForeignKey("article_block.id"), nullable=True)
+
+    # relationships
+    previous = relationship(
+        "ArticleBlock",
+        remote_side=[id],
+        foreign_keys=[previous_id],
+        backref="next_block"
+    )
+
+    next = relationship(
+        "ArticleBlock",
+        remote_side=[id],
+        foreign_keys=[next_id],
+        backref="previous_block"
+    )
+
+
+
 
 class MarkedWord(Base):
     __tablename__ = 'marked_words'
