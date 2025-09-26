@@ -134,6 +134,40 @@ def delete_article(
 
 
 
+@router.get('/article_blocks')
+def get_article_blocks(current_user:User = Depends(get_current_user), db: Session = Depends(get_db)):
+    article_blocks = db.query(ArticleBlock).filter(
+        ArticleBlock.user_id == current_user.id, ArticleBlock.article_id
+        ).order_by(desc(ArticleBlock.index)).all()
+
+    # 將 Article 物件 list 轉成 dict list
+    articles_list = [article_to_dict(a) for a in articles]
+
+    return {'message': '文章查詢成功', 'account': current_user.username, 'articles': articles}
+
+
+@router.post('/article_blocks/batch')
+def add_article_blocks(
+    request: AddArticleBlocksRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    # 將每筆 block 加上 user_id
+    block_dicts = []
+    for b in request.blocks:
+        d = b.dict()
+        d['user_id'] = current_user.id
+        block_dicts.append(d)
+
+    # 使用 bulk_insert_mappings 批量新增
+    db.bulk_insert_mappings(ArticleBlock, block_dicts)
+    db.commit()
+
+    return {
+        'message': '文章區塊批量新增成功',
+        'account': current_user.username,
+        'added_count': len(block_dicts)
+    }
 
 
 

@@ -26,7 +26,6 @@ class Article(Base):
     note = Column(String)
 
     content = Column(String)
-    tags_css = Column(JSON, nullable=True)
 
     user = relationship("User", back_populates="articles")
     marked_words = relationship("MarkedWord")
@@ -66,7 +65,7 @@ class ArticleBlock(Base):
     )
 
 
-
+Index("ix_article_block_article", ArticleBlock.article_id)
 
 class MarkedWord(Base):
     __tablename__ = 'marked_words'
