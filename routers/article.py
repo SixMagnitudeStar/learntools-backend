@@ -3,7 +3,7 @@ from typing import List, Optional
 import jwt  # pip install pyjwt
 
 
-from schemas.schema import AddArticleRequest, AddMarkedWordRequest
+from schemas.schema import AddArticleRequest, AddMarkedWordRequest, AddArticleBlocksRequest ,ArticleRes,AddArticleWithBlocksRequest
 
 from security import get_current_user
 from database import get_db
@@ -35,14 +35,21 @@ def findarticle(db: Session = Depends(get_db)):
 
 
 
-@router.get('/articles')
+from fastapi.encoders import jsonable_encoder
+
+@router.get('/articles', response_model=List[ArticleRes])
 def get_articles(current_user:User = Depends(get_current_user), db: Session = Depends(get_db)):
     articles = db.query(Article).filter(Article.user_id == current_user.id).order_by(desc(Article.id)).all()
+    return articles
 
-    # 將 Article 物件 list 轉成 dict list
-    articles_list = [article_to_dict(a) for a in articles]
+# @router.get('/articles')
+# def get_articles(current_user:User = Depends(get_current_user), db: Session = Depends(get_db)):
+#     articles = db.query(Article).filter(Article.user_id == current_user.id).order_by(desc(Article.id)).all()
 
-    return {'message': '文章查詢成功', 'account': current_user.username, 'articles': articles}
+#     # 將 Article 物件 list 轉成 dict list
+#  ##   articles_list = [article_to_dict(a) for a in articles]
+
+#     return {'message': '文章查詢成功', 'account': current_user.username, 'articles': articles}
 
 
 
@@ -56,10 +63,8 @@ def article_to_dict(article: Article):
     }
 
 
-
-
 @router.post('/article')
-def add_article(req: AddArticleRequest,current_user:User = Depends(get_current_user), db: Session = Depends(get_db)):
+def add_article(req: AddArticleWithBlocksRequest,current_user:User = Depends(get_current_user), db: Session = Depends(get_db)):
     if not current_user:
         return {"message": "請先登入"}
 
@@ -68,7 +73,33 @@ def add_article(req: AddArticleRequest,current_user:User = Depends(get_current_u
     db.commit()
     db.refresh(new_article) ## 沒有要回傳值，其實可以不用refresh
 
-    return {'message': '文章新增成功!', 'account': current_user.username, 'article':{'title': req.title, 'content': req.content}}
+
+    for i in req.blocks:
+        new_block = ArticleBloc
+        (
+            user_id = current_user.id,
+            article_id = new_article.id,
+            index = i.index,
+            text = i.text,
+            text_type = i.text_type,
+            previous_index = i.previous_index,
+            next_index = i.next_index
+        )
+        db.add(new_block)
+
+    db.commit()  # 一次性提交所有 block
+  
+
+    return {
+        'message': '文章新增成功!',
+        'account': current_user.username,
+        'article': {
+            'id': new_article.id,
+            'title': req.title,
+            'content': req.content,
+            'blocks_count': len(req.blocks)
+        }
+    }
 
 
 

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean ,ForeignKey, JSON
+from sqlalchemy import Column, Integer, String, Boolean ,ForeignKey, JSON, Index
 from sqlalchemy.orm import relationship, declarative_base
 from sqlalchemy.sql import expression
 from pydantic import BaseModel
@@ -33,6 +33,37 @@ class Article(Base):
 
 
 
+# class ArticleBlock(Base):
+#     __tablename__ = 'article_block'
+
+#     id = Column(Integer, primary_key=True, index = True)
+#     user_id = Column(Integer, ForeignKey('users.id'))
+#     article_id = Column(Integer, ForeignKey('articles.id')) 
+
+#     text = Column(String)
+#     text_type = Column(String)
+
+#     marked = Column(Boolean,  default=False,  server_default=expression.false(), nullable=False)
+
+#         # self-reference
+#     previous_id = Column(Integer, ForeignKey("article_block.id"), nullable=True)
+#     next_id = Column(Integer, ForeignKey("article_block.id"), nullable=True)
+
+#     # relationships
+#     previous = relationship(
+#         "ArticleBlock",
+#         remote_side=[id],
+#         foreign_keys=[previous_id],
+#         backref="next_block"
+#     )
+
+#     next = relationship(
+#         "ArticleBlock",
+#         remote_side=[id],
+#         foreign_keys=[next_id],
+#         backref="previous_block"
+#     )
+
 class ArticleBlock(Base):
     __tablename__ = 'article_block'
 
@@ -46,23 +77,9 @@ class ArticleBlock(Base):
     marked = Column(Boolean,  default=False,  server_default=expression.false(), nullable=False)
 
         # self-reference
-    previous_id = Column(Integer, ForeignKey("article_block.id"), nullable=True)
-    next_id = Column(Integer, ForeignKey("article_block.id"), nullable=True)
+    previous_index = Column(Integer, nullable=True)
+    next_index = Column(Integer, nullable=True)
 
-    # relationships
-    previous = relationship(
-        "ArticleBlock",
-        remote_side=[id],
-        foreign_keys=[previous_id],
-        backref="next_block"
-    )
-
-    next = relationship(
-        "ArticleBlock",
-        remote_side=[id],
-        foreign_keys=[next_id],
-        backref="previous_block"
-    )
 
 
 Index("ix_article_block_article", ArticleBlock.article_id)
