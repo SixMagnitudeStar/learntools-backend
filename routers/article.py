@@ -68,15 +68,14 @@ def add_article(req: AddArticleWithBlocksRequest,current_user:User = Depends(get
     if not current_user:
         return {"message": "請先登入"}
 
-    new_article = Article(user_id = current_user.id,title=req.title, content = req.content, tags_css = req.tags_css, note=req.note)
+    new_article = Article(user_id = current_user.id,title=req.title, content = req.content, note=req.note)
     db.add(new_article)
     db.commit()
     db.refresh(new_article) ## 沒有要回傳值，其實可以不用refresh
 
 
     for i in req.blocks:
-        new_block = ArticleBloc
-        (
+        new_block = ArticleBlock(
             user_id = current_user.id,
             article_id = new_article.id,
             index = i.index,

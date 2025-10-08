@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 
 class RegisterRequest(BaseModel):
@@ -29,12 +29,13 @@ class AddArticleRequest(BaseModel):
 
 
 class AddArticleBlockRequest(BaseModel):
-    article_id: int
     index: int
     text: str
     text_type: str
-    previous_index: int
-    next_index: int
+    previous_index: Optional[int] = None
+    next_index: Optional[int] = None
+    # previous_index: int
+    # next_index: int
 
 class AddArticleBlocksRequest(BaseModel):
     blocks: List[AddArticleBlockRequest]
@@ -59,8 +60,8 @@ class ArticleRes(BaseModel):
     id: int
     title: str
     content: str
-    note: str
-    blocks: List[ArticleBlockSchema] = []
+    note: Optional[str] = ''
+    blocks: List[ArticleBlockRes] = []
 
     class Config:
         orm_mode = True
