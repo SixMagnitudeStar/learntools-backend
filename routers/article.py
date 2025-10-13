@@ -7,7 +7,7 @@ from schemas.schema import AddArticleRequest, AddMarkedWordRequest, AddArticleBl
 
 from security import get_current_user
 from database import get_db
-from models.models import Article, User, MarkedWord
+from models.models import Article, User, MarkedWord, ArticleBlock
 
 # 匯入 SQLAlchemy 的 Session 類型，用於與資料庫互動
 from sqlalchemy.orm import Session
@@ -17,21 +17,28 @@ import json
 from sqlalchemy import desc
 
 from fastapi import Query
+from sqlalchemy.orm import Session, joinedload
 
 # 建立一個 APIRouter 實例，讓這個檔案可以獨立作為路由模組
 router = APIRouter()
 
 
 ## 測試用，之後要拿掉
-@router.get("/testarticle")
+@router.get("/testarticle", response_model=List[ArticleRes])
 def findarticle(db: Session = Depends(get_db)):
-    articles = db.query(Article).order_by(desc(Article.id)).all()
+    articles = db.query(Article)\
+    .options(joinedload(Article.blocks))\
+    .order_by(desc(Article.id))\
+    .all()
     
     # if articles:
     #     return {'文章': articles}
     # else:
     #     return {'回答': '找不到'}
+    #return articles
     return {'文章': articles}
+
+
 
 
 
@@ -39,7 +46,12 @@ from fastapi.encoders import jsonable_encoder
 
 @router.get('/articles', response_model=List[ArticleRes])
 def get_articles(current_user:User = Depends(get_current_user), db: Session = Depends(get_db)):
-    articles = db.query(Article).filter(Article.user_id == current_user.id).order_by(desc(Article.id)).all()
+    articles = db.query(Article)\
+    .filter(Article.user_id == current_user.id)\
+    .options(joinedload(Article.blocks))\
+    .order_by(desc(Article.id))\
+    .all()
+    ##return {'message': '文章查詢成功', 'account': current_user.username, 'articles': articles}
     return articles
 
 # @router.get('/articles')
@@ -73,6 +85,7 @@ def add_article(req: AddArticleWithBlocksRequest,current_user:User = Depends(get
     db.commit()
     db.refresh(new_article) ## 沒有要回傳值，其實可以不用refresh
 
+    print('提交文章成功');
 
     for i in req.blocks:
         new_block = ArticleBlock(
@@ -87,7 +100,8 @@ def add_article(req: AddArticleWithBlocksRequest,current_user:User = Depends(get
         db.add(new_block)
 
     db.commit()  # 一次性提交所有 block
-  
+
+    print('提交block成功')
 
     return {
         'message': '文章新增成功!',

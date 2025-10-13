@@ -51,6 +51,8 @@ def init_user():
     db.commit()
     db.close()
 
+
+
 # def init_user():
 #     db = SessionLocal()
 #     if not db.query(User).filter_by(username="admin").first():

@@ -31,7 +31,13 @@ class Article(Base):
     marked_words = relationship("MarkedWord")
 
 
-
+    # 加上 blocks relationship
+    blocks = relationship(
+        "ArticleBlock",
+        backref="article",
+        cascade="all, delete-orphan",
+        order_by="ArticleBlock.index"
+    )
 
 # class ArticleBlock(Base):
 #     __tablename__ = 'article_block'
@@ -76,6 +82,7 @@ class ArticleBlock(Base):
 
     marked = Column(Boolean,  default=False,  server_default=expression.false(), nullable=False)
 
+    index = Column(Integer, nullable=True)
         # self-reference
     previous_index = Column(Integer, nullable=True)
     next_index = Column(Integer, nullable=True)

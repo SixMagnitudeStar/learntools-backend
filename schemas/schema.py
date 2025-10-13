@@ -50,8 +50,9 @@ class ArticleBlockRes(BaseModel):
     id: int
     text: str
     text_type: str
-    previous_index: int
-    next_index: int
+
+    previous_index: Optional[int] = None
+    next_index: Optional[int] = None
 
     class Config:
         orm_mode = True
