@@ -3,7 +3,7 @@ from typing import List, Optional
 import jwt  # pip install pyjwt
 
 
-from schemas.schema import AddArticleRequest, AddMarkedWordRequest, AddArticleBlocksRequest ,ArticleRes,AddArticleWithBlocksRequest
+from schemas.schema import AddArticleRequest, AddMarkedWordRequest, AddArticleBlocksRequest ,ArticleRes,AddArticleWithBlocksRequest, MarkedUpdate
 
 from security import get_current_user
 from database import get_db
@@ -36,7 +36,7 @@ def findarticle(db: Session = Depends(get_db)):
     # else:
     #     return {'回答': '找不到'}
     #return articles
-    return {'文章': articles}
+    return articles
 
 
 
@@ -52,7 +52,19 @@ def get_articles(current_user:User = Depends(get_current_user), db: Session = De
     .order_by(desc(Article.id))\
     .all()
     ##return {'message': '文章查詢成功', 'account': current_user.username, 'articles': articles}
-    return articles
+
+    result = []
+    for article in articles:
+        # 查該文章的 marked_words
+        words = [mw.word for mw in db.query(MarkedWord).filter(MarkedWord.article_id == article.id).all()]
+
+        # 將 ORM 物件轉成 dict 並加入 marked_words
+        article_data = ArticleRes.from_orm(article).dict()
+        article_data['marked_words'] = words
+
+        result.append(article_data)
+
+    return result
 
 # @router.get('/articles')
 # def get_articles(current_user:User = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -281,6 +293,24 @@ def delete_markedword(
         "message": "成功刪除標記單字!",
         "account": current_user.username,
         "deleted_word": item.word
+    }
+
+
+
+@router.patch("/article-blocks/{block_id}/marked")
+def update_block_marked(block_id: int, data: MarkedUpdate, db: Session = Depends(get_db)):
+    block = db.query(ArticleBlock).filter(ArticleBlock.id == block_id).first()
+    if not block:
+        raise HTTPException(status_code=404, detail="Block not found")
+
+    block.marked = data.marked
+    db.commit()
+    db.refresh(block)
+
+    return {
+        "message": "Marked status updated",
+        "block_id": block_id,
+        "marked": block.marked
     }
 
 # @router.delete('/markedword/{id}')

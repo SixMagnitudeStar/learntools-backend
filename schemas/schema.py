@@ -51,11 +51,15 @@ class ArticleBlockRes(BaseModel):
     text: str
     text_type: str
 
+    marked: bool
+    index: int
     previous_index: Optional[int] = None
     next_index: Optional[int] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
+    # class Config:
+    #     orm_mode = True
 
 class ArticleRes(BaseModel):
     id: int
@@ -63,9 +67,13 @@ class ArticleRes(BaseModel):
     content: str
     note: Optional[str] = ''
     blocks: List[ArticleBlockRes] = []
+    marked_words: List[str] = []
 
     class Config:
-        orm_mode = True
+        from_attributes = True    
+
+    # class Config:
+    #     orm_mode = True
 
 
 class AddArticleWithBlocksRequest(BaseModel):
@@ -73,3 +81,13 @@ class AddArticleWithBlocksRequest(BaseModel):
     content: str
     note: str
     blocks: List[AddArticleBlockRequest] = []   # 預設空陣列
+
+
+class MarkedWord(BaseModel):
+    id: int
+    article_id: int
+    word: str
+
+
+class MarkedUpdate(BaseModel):
+    marked: bool
