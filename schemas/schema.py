@@ -61,13 +61,19 @@ class ArticleBlockRes(BaseModel):
     # class Config:
     #     orm_mode = True
 
+class MarkedWordRes(BaseModel):
+    id: int
+    article_id: int
+    word: str
+
+
 class ArticleRes(BaseModel):
     id: int
     title: str
     content: str
     note: Optional[str] = ''
     blocks: List[ArticleBlockRes] = []
-    marked_words: List[str] = []
+    marked_words: List[MarkedWordRes] = []
 
     class Config:
         from_attributes = True    
@@ -83,10 +89,6 @@ class AddArticleWithBlocksRequest(BaseModel):
     blocks: List[AddArticleBlockRequest] = []   # 預設空陣列
 
 
-class MarkedWord(BaseModel):
-    id: int
-    article_id: int
-    word: str
 
 
 class MarkedUpdate(BaseModel):

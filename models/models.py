@@ -28,8 +28,8 @@ class Article(Base):
     content = Column(String)
 
     user = relationship("User", back_populates="articles")
-    marked_words = relationship("MarkedWord")
-
+    # marked_words = relationship("MarkedWord")
+    marked_words = relationship("MarkedWord", back_populates="article")
 
     # 加上 blocks relationship
     blocks = relationship(
@@ -38,6 +38,8 @@ class Article(Base):
         cascade="all, delete-orphan",
         order_by="ArticleBlock.index"
     )
+
+
 
 # class ArticleBlock(Base):
 #     __tablename__ = 'article_block'
@@ -100,6 +102,8 @@ class MarkedWord(Base):
     # 這個 mark的單字屬於哪篇文章
     article_id = Column(Integer, ForeignKey('articles.id')) 
     word = Column(String)                    # mark 的單字
+
+    article = relationship("Article", back_populates="marked_words")
 
 
 class Word(Base):

@@ -3,7 +3,7 @@ from typing import List, Optional
 import jwt  # pip install pyjwt
 
 
-from schemas.schema import AddArticleRequest, AddMarkedWordRequest, AddArticleBlocksRequest ,ArticleRes,AddArticleWithBlocksRequest, MarkedUpdate
+from schemas.schema import AddArticleRequest, AddMarkedWordRequest, AddArticleBlocksRequest ,ArticleRes,AddArticleWithBlocksRequest, MarkedUpdate, MarkedWordRes
 
 from security import get_current_user
 from database import get_db
@@ -44,27 +44,66 @@ def findarticle(db: Session = Depends(get_db)):
 
 from fastapi.encoders import jsonable_encoder
 
+
 @router.get('/articles', response_model=List[ArticleRes])
-def get_articles(current_user:User = Depends(get_current_user), db: Session = Depends(get_db)):
+def get_articles(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     articles = db.query(Article)\
-    .filter(Article.user_id == current_user.id)\
-    .options(joinedload(Article.blocks))\
-    .order_by(desc(Article.id))\
-    .all()
-    ##return {'message': '文章查詢成功', 'account': current_user.username, 'articles': articles}
+        .filter(Article.user_id == current_user.id)\
+        .options(joinedload(Article.blocks))\
+        .order_by(desc(Article.id))\
+        .all()
 
     result = []
     for article in articles:
-        # 查該文章的 marked_words
-        words = [mw.word for mw in db.query(MarkedWord).filter(MarkedWord.article_id == article.id).all()]
+        # 1. 手動取 marked_words
+        marked_words = [
+            MarkedWordRes(
+                id=mw.id,
+                article_id=mw.article_id,
+                word=mw.word
+            )
+            for mw in db.query(MarkedWord).filter(MarkedWord.article_id == article.id).all()
+        ]
 
-        # 將 ORM 物件轉成 dict 並加入 marked_words
-        article_data = ArticleRes.from_orm(article).dict()
-        article_data['marked_words'] = words
+        # 2. 手動建 ArticleRes（或用 model_validate 也行）
+        article_data = ArticleRes(
+            id=article.id,
+            title=article.title,
+            note=article.note,
+            content=article.content,
+            user_id=article.user_id,
+            blocks=article.blocks,  # 假設 BlockRes 支援
+            marked_words=marked_words,
+        )
 
         result.append(article_data)
 
     return result
+# @router.get('/articles', response_model=List[ArticleRes])
+# def get_articles(current_user:User = Depends(get_current_user), db: Session = Depends(get_db)):
+#     articles = db.query(Article)\
+#     .filter(Article.user_id == current_user.id)\
+#     .options(joinedload(Article.blocks))\
+#     .order_by(desc(Article.id))\
+#     .all()
+#     ##return {'message': '文章查詢成功', 'account': current_user.username, 'articles': articles}
+
+#     result = []
+#     for article in articles:
+#         # 查該文章的 marked_words
+#         words = [
+#             MarkedWordRes(
+#                 id=mw.id,
+#                 article_id=mw.article_id,
+#                 word=mw.word
+#             )
+#             for mw in db.query(MarkedWord).filter(MarkedWord.article_id == article.id).all()
+#         ]
+
+#         article_data = ArticleRes.from_orm(article).model_copy(update={"marked_words": words})
+
+#         result.append(article_data.dict())
+#     return result
 
 # @router.get('/articles')
 # def get_articles(current_user:User = Depends(get_current_user), db: Session = Depends(get_db)):
