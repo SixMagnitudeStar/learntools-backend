@@ -82,6 +82,8 @@ class ArticleBlock(Base):
     text = Column(String)
     text_type = Column(String)
 
+    style = Column(String)
+
     marked = Column(Boolean,  default=False,  server_default=expression.false(), nullable=False)
 
     index = Column(Integer, nullable=True)

@@ -34,6 +34,7 @@ class AddArticleBlockRequest(BaseModel):
     text_type: str
     previous_index: Optional[int] = None
     next_index: Optional[int] = None
+    style: Optional[str] = None  # <- 可選
     # previous_index: int
     # next_index: int
 
@@ -53,6 +54,8 @@ class ArticleBlockRes(BaseModel):
 
     marked: bool
     index: int
+    style: Optional[str] = None  # <- 可選
+
     previous_index: Optional[int] = None
     next_index: Optional[int] = None
 
@@ -74,7 +77,7 @@ class ArticleRes(BaseModel):
     note: Optional[str] = ''
     blocks: List[ArticleBlockRes] = []
     marked_words: List[MarkedWordRes] = []
-
+    
     class Config:
         from_attributes = True    
 
@@ -93,3 +96,8 @@ class AddArticleWithBlocksRequest(BaseModel):
 
 class MarkedUpdate(BaseModel):
     marked: bool
+
+
+class UpdateArticleNoteReq(BaseModel):
+    article_id : int
+    note : str
